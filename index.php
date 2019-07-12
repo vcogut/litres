@@ -44,6 +44,45 @@ try {
     die();
 }
 
+$sth = $dbh->query('SELECT * FROM books_not_epub');
+$sth->setFetchMode(PDO::FETCH_ASSOC);
+
+$result = $sth->fetchAll();
+// echo '<h1>';
+// var_dump($result);
+// echo '</h1>';
+
+foreach ($result as $i_book => $book)
+{
+    sleep(1);
+
+    output("<h1>" . $i_book . " : " . $book['id'] . " [" . $book['url'] . "]<br></h1>");
+
+    $handle = curl_init();
+    curl_setopt($handle, CURLOPT_URL, $book['url']);
+    curl_setopt($handle, CURLOPT_RETURNTRANSFER, true); // Set the result output to be a string.
+    $output = curl_exec($handle);
+    curl_close($handle);
+
+    // var_dump( $output );
+
+    // echo "<br><br><br><h1>ENTRIES [$i]</h1><br><br><br><br>";
+    preg_match_all('/href="([^"]+)" data-format="epub"/siU', $output, $entry_matches); // entries
+    // print_r($entry_matches);
+
+    $sql_update = "UPDATE books_not_epub SET epub = '" . $entry_matches[1][0] . "' WHERE id = " . $book['id'];
+    // var_dump($sql_update);
+
+    $sth = $dbh->prepare($sql_update);
+    try {
+        $sth->execute();
+    } catch(Exception $e) {
+        echo '<h1>An error has ocurred.</h1><pre>', $e->getMessage() ,'</pre>';
+    }
+}
+
+exit();
+
 $url = "http://partnersdnld.litres.ru/genres_list_2/";
 
 $handle = curl_init();
