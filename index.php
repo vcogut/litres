@@ -44,7 +44,7 @@ try {
     die();
 }
 
-$sth = $dbh->query('SELECT * FROM books_not_epub');
+$sth = $dbh->query('SELECT * FROM books_not_epub WHERE epub = ""');
 $sth->setFetchMode(PDO::FETCH_ASSOC);
 
 $result = $sth->fetchAll();
@@ -54,7 +54,7 @@ $result = $sth->fetchAll();
 
 foreach ($result as $i_book => $book)
 {
-    sleep(1);
+    sleep(5);
 
     output("<h1>" . $i_book . " : " . $book['id'] . " [" . $book['url'] . "]<br></h1>");
 
